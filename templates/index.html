@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>StudentFlow - Tus notas</title>
+    <!-- Enlazar CSS con la sintaxis de Flask-->
+     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <h1> StudenFlow </h1>
+            <p> Tu espacio, tus notas. Simple y util
+            </div>
+    </header>
+
+    <main class="main-container">
+        <!-- Panel izquierdo: Formulario para Crear Notas-->
+         <section class="card from-cards">
+            <h2> ✨ Nueva Nota </h2>
+            <from id="form-nota">
+                <div class="imput-group">
+                    <label for="titulo"> Titulo</label>
+                    <imput type="text" id="titulo" placeholder="Ej: Tarea de Programacion" required>
+                    </div>
+                <div class="imput-gropu">
+                    <label for="contenido">Contenido / Apuntes</label>
+                    <textarea id="contenido" rows="4" placeholder="Escribe los detalles aqui..."> </textarea>
+                </div>
+                <button type="submit" class="btn btn-primary"> Guardar Nota</button>
+            </form>
+        </section>
+
+        <!-- Panel Derecho: Lista de notas guardadas -->
+        <section class="notes-section">
+            <h2>📝 Mis notas <h2>
+            <div id="contenedor-notas" class="notes-grid">
+                <!-- Aqui JavaScript inyecta las tarjetas de las notas -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Enlazamos el JavaScript usando url_for de Flask -->
+    <script src="{{ url_for('static', filename='js/main.js') }}">
+</script>
+</body>
+</hrml>

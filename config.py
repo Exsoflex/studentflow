@@ -9,3 +9,4 @@ def get_db_connection():
         database='studentflow_db',
         cursorclass=pymysql.cursors.DictCursor # Devuelve las filas como diccionarios de python (faciles de convertir a JSON)
     )
+    

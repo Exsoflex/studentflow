@@ -1,11 +1,13 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
+from flask_cors import CORS
 from config import get_db_connection
 
 app = Flask(__name__)
+CORS(app)  # 2. Le decimos a Flask que permita peticiones desde cualquier origen (CORS libre)
 
 @app.route('/')
 def home():
-    return "<h1> Servidor StudenFlow Activo</h1>"
+    return render_template('index.html')
 
 # -----------------------------------------------
 # ENDPOINT 1: Otener todas las notas (GET)
@@ -31,7 +33,7 @@ def obtener_notas():
     except Exception as e:
         return jsonify({"error": f"Error en el servidor: {str(e)}"}), 500
     
-# -----------------------------------------------
+# ------------------------------------------------
 # ENDPOINT 2: Crear una nueva nota (POST)
 # ------------------------------------------------
 @app.route('/api/notas', methods=['POST'])
@@ -71,6 +73,35 @@ def crear_nota():
     except Exception as e:
         return jsonify({"error": f"Error al crear nota: {str(e)}"}), 500
     
+# ------------------------------------------------
+# ENDPOINT 3: Eliminar una nota por su ID (DELETE)
+# ------------------------------------------------
+@app.route('/api/notas/<int:id>', methods=['DELETE'])
+def eliminar_nota(id):
+    try:
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        
+        # 1. Ejecutamos la orden DELETE buscando por el ID que viene en la URL
+        sql = "DELETE FROM notas WHERE id = %s"
+        cursor.execute(sql, (id,))
+        
+        # 2. Importante: Cambiar el cambio en MySQL
+        conexion.commit()
+        
+        # 3. Conocer cuantas filas se borraron con rowcount
+        filas_afectadas = cursor.rowcount
+        
+        conexion.close()
+        
+        # Si el rowcount es 0, significa que el ID no existia en la base de datos
+        if filas_afectadas == 0:
+            return jsonify({"error": f"No se encontro ninguna nota con el ID {id}"}), 404 # 404 = Not Found
+        
+        return jsonify({"mensaje": f"Nota {id} eliminada con exito"}), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"Error al eliminar nota: {str(e)}"}), 500
+    
 if __name__== '__main__':
     app.run(debug=True, port=5000)
-    

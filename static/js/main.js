@@ -70,7 +70,7 @@ formNota.addEventListener('submit', async (e) => {
     try {
         const respuesta = await fetch(API_URL, {
             method: 'POST', 
-            headers: {'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(nuevaNota)
         });
 
@@ -89,9 +89,9 @@ formNota.addEventListener('submit', async (e) => {
     }
 });
 
-// ----------------------------------------------------------
-// 2. Guardar una nueva nota (Formulario Submit)
-// ----------------------------------------------------------
+// -------------------------------------------------------------
+// 3. Eliminar una nota por su ID
+// -------------------------------------------------------------
 async function eliminarNota(id) {
     if (!confirm('Estas seguro que deseas eliminar esta nota?')) 
         return;

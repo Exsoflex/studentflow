@@ -13,7 +13,7 @@
     <header>
         <div class="header-container">
             <h1> StudenFlow </h1>
-            <p> Tu espacio, tus notas. Simple y util
+            <p> Tu espacio, tus notas. </p>
             </div>
     </header>
 
@@ -21,8 +21,8 @@
         <!-- Panel izquierdo: Formulario para Crear Notas-->
          <section class="card from-cards">
             <h2> ✨ Nueva Nota </h2>
-            <from id="form-nota">
-                <div class="imput-group">
+            <form id="form-nota">
+                <div class="input-group">
                     <label for="titulo"> Titulo</label>
                     <input type="text" id="titulo" placeholder="Ej: Tarea de Programacion" required>
                     </div>
@@ -36,7 +36,7 @@
 
         <!-- Panel Derecho: Lista de notas guardadas -->
         <section class="notes-section">
-            <h2>📝 Mis notas <h2>
+            <h2>📝 Mis notas </h2>
             <div id="contenedor-notas" class="notes-grid">
                 <!-- Aqui JavaScript inyecta las tarjetas de las notas -->
             </div>
@@ -47,4 +47,4 @@
     <script src="{{ url_for('static', filename='js/main.js') }}">
 </script>
 </body>
-</hrml>
+</html>

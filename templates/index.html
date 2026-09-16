@@ -15,32 +15,71 @@
             <h1> StudenFlow </h1>
             <p> Tu espacio, tus notas. </p>
             </div>
+    <!-- Barra de navegacion minimalista entre modulos -->
+        <nav class="nav-tabs">
+            <button id="tab-notas" class="tab-btn active"
+            onclick="cambiarPestana('notas')">📝 Mis Notas</button>
+            <button id="tab-calendario" class="tab-btn" onclick="cambiarPestana('calendario')">📆 Calendario</button>
+        </nav>
     </header>
 
-    <main class="main-container">
-        <!-- Panel izquierdo: Formulario para Crear Notas-->
-         <section class="card from-cards">
-            <h2> ✨ Nueva Nota </h2>
-            <form id="form-nota">
-                <div class="input-group">
-                    <label for="titulo"> Titulo</label>
-                    <input type="text" id="titulo" placeholder="Ej: Tarea de Programacion" required>
-                    </div>
-                <div class="input-group">
-                    <label for="contenido">Contenido / Apuntes</label>
-                    <textarea id="contenido" rows="3" placeholder="Escribe los detalles aqui..."> </textarea>
-                </div>
-                <button type="submit" class="btn btn-primary"> Guardar Nota</button>
-            </form>
-        </section>
 
-        <!-- Panel Derecho: Lista de notas guardadas -->
-        <section class="notes-section">
-            <h2>📝 Mis notas </h2>
-            <div id="contenedor-notas" class="notes-grid">
-                <!-- Aqui JavaScript inyecta las tarjetas de las notas -->
-            </div>
-        </section>
+    <main class="main-container">
+<!-- ================= VISTA 1: NOTAS ================= -->
+        <div id="vista-notas" class="vista-modulo active">
+            <!-- Formulario para crear notas -->
+            <section class="card from-cards">
+                <h2> ✨ Nueva Nota </h2>
+                <form id="form-nota">
+                    <div class="input-group">
+                        <label for="titulo"> Titulo</label>
+                        <input type="text" id="titulo" placeholder="Ej: Tarea de Programacion" required>
+                        </div>
+                    <div class="input-group">
+                        <label for="contenido">Contenido / Apuntes</label>
+                        <textarea id="contenido" rows="3" placeholder="Escribe los detalles aqui..."> </textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary"> Guardar Nota</button>
+                </form>
+            </section>
+
+            <!-- Panel Derecho: Lista de notas guardadas -->
+            <section class="notes-section">
+                <h2>📝 Mis notas </h2>
+                <div id="contenedor-notas" class="notes-grid">
+                    <!-- Aqui JavaScript inyecta las tarjetas de las notas -->
+                </div>
+            </section>
+        </div>
+
+ <!-- ================= VISTA 2: CALENDARIO ================= -->
+        <div id="vista-calendario" class="vista-modulo">
+            <section class="card calendar-card">
+                <!-- Cabecera del calendario (Mes, Año, y Botones)-->
+
+                <div class="calendar-header">
+                    <button class="calendar-header">
+                        <button id="btn-prev-mes" class="btn-icon">◀</button>
+                        <h2 id="mes-ano-texto">Septiembre 2026</h2>
+                        <button id="btn-next-mes" class="btn-icon">◀</button>
+                </div>
+
+                <!-- Dias de la semana-->
+                 <div class="weekdays-grid">
+                    <div>Dom</div>
+                    <div>Lun</div>
+                    <div>Mar</div>
+                    <div>Mié</div>
+                    <div>Jue</div>
+                    <div>Vie</div>
+                    <div>Sab</div>
+                 </div>
+                <!-- Cuadrícula dinámica donde JS pinta los días -->
+                <div id="dias-grid" class="days-grid">
+                    <!-- Los dias se generan con JavaScript -->
+                </div>
+            </section>
+        </div>
     </main>
 
     <!-- Enlazamos el JavaScript usando url_for de Flask -->

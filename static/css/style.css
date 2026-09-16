@@ -168,3 +168,122 @@ header p {
     background: var(--danger-color);
     color: white;
 }
+
+/* ================= NAVEGACIÓN POR PESTAÑAS ================= */
+.nav-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* Control de visibilidad de las vistas */
+.vista-modulo {
+    display: none; /* Oculto por defecto */
+}
+
+.vista-modulo.active {
+    display: grid; /* Se muestra cuando tiene la clase active */
+}
+
+#vista-notas.active {
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    #vista-notas.active {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ================= DISEÑO DEL CALENDARIO ================= */
+.calendar-card {
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.btn-icon {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s;
+}
+
+.btn-icon:hover {
+    background: var(--border-color);
+}
+
+.weekdays-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.8rem;
+}
+
+.days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.day-cell {
+    min-height: 70px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.day-cell:hover {
+    border-color: var(--primary-color);
+    background-color: #f1f5f9;
+}
+
+/* Día actual marcado */
+.day-cell.today {
+    border: 2px solid var(--primary-color);
+    background-color: #eef2ff;
+}
+
+/* Días vacíos del mes anterior */
+.day-cell.empty {
+    border: none;
+    background: transparent;
+    cursor: default;
+}

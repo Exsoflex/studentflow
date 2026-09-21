@@ -123,7 +123,7 @@ function escaparHTML(texto) {
 // =============================================================
 function cambiarPestana(modulo) {
     const vistaNotas = document.getElementById('vista-notas');
-    const vistaValendario = document.getElementById('vista-calendario');
+    const vistaCalendario = document.getElementById('vista-calendario');
     const tabNotas = document.getElementById('tab-notas');
     const tabCalendario = document.getElementById('tab-calendario');
 
@@ -142,14 +142,27 @@ function cambiarPestana(modulo) {
 }
 
 // =============================================================
-// MOTOR DEL CALENDARIO VISUAL
+// MOTOR DEL CALENDARIO VISUAL Y EVENTOS
 // =============================================================
-let fechaActual = new Date(); // Guarda el año y mes en el que estamos navegando
+const API_EVENTOS_URL = 'http://localhost:5000/api/eventos';
+let fechaActual = new Date();
+let listaEventos = []; // Guardará los eventos traídos de MySQL
 
 const mesesNombres = [
     "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
+
+// Cargar eventos desde el backend
+async function cargarEventos() {
+    try {
+        const respuesta = await fetch(API_EVENTOS_URL);
+        listaEventos = await respuesta.json();
+        renderizarCalendario();
+    } catch (error) {
+        console.error('Error al cargar eventos:', error);
+    }
+}
 
 function renderizarCalendario() {
     const mesTexto = document.getElementById('mes-ano-texto');
@@ -160,47 +173,54 @@ function renderizarCalendario() {
     const ano = fechaActual.getFullYear();
     const mes = fechaActual.getMonth();
 
-    // 1. Ponemos el titulo
     mesTexto.innerText = `${mesesNombres[mes]} ${ano}`;
+    diasGrid.innerHTML = '';
 
-    // 2. Limpiar la cuadricula
-    diasGrid.innerText = '';
-
-    // 3. Averiguamos que dia de la semana empieza el mes (0=Dom, 6=Sab)
-    const primerDiaIndex = new Date(ano, mes, 1).getDay();
-
-    // 4. Calculammos cuantos dias tiene el mes
+    const primerDiaIndex = new Date(ano, mes, 1).getDay(); // 0 = Domingo
     const totalDiasMes = new Date(ano, mes + 1, 0).getDate();
 
-    // 5. Dibujamos celdas vacias para los dias antes de que empiece el mes
-    for (let i = 0; i < diaInicio; i++) {
+    // Días vacíos previos
+    for (let i = 0; i < primerDiaIndex; i++) {
         const celdaVacia = document.createElement('div');
         celdaVacia.classList.add('day-cell', 'empty');
         diasGrid.appendChild(celdaVacia);
     }
 
-    // 6. Dibujamos los dias reales del mes
+    // Días reales
     const hoy = new Date();
     for (let dia = 1; dia <= totalDiasMes; dia++) {
         const celdaDia = document.createElement('div');
         celdaDia.classList.add('day-cell');
-        celdaDia.innerText = dia;
 
-        // Si el dia es hoy, se destaca
-        if (dia === hoy.getDate() && mes == hoy.getMonth() && ano === hoy.getFullYear()) {
+        // Formato de fecha YYYY-MM-DD
+        const mesFormateado = String(mes + 1).padStart(2, '0');
+        const diaFormateado = String(dia).padStart(2, '0');
+        const fechaStr = `${ano}-${mesFormateado}-${diaFormateado}`;
+
+        // Número del día
+        celdaDia.innerHTML = `<span>${dia}</span>`;
+
+        if (dia === hoy.getDate() && mes === hoy.getMonth() && ano === hoy.getFullYear()) {
             celdaDia.classList.add('today');
         }
 
-        // Evento al hacer clic en un dia (por ahora solo mensaje visual)
-        celdaDia.addEventListener('click', () => {
-            alert(`Seleccionaste el dia ${dia} de ${mesNombres[mes]} de ${ano}`);
+        // Buscar si hay eventos en esta fecha y pintarlos
+        const eventosDelDia = listaEventos.filter(e => e.fecha_evento === fechaStr);
+        eventosDelDia.forEach(evento => {
+            const badge = document.createElement('div');
+            badge.classList.add('event-badge');
+            badge.innerText = evento.titulo;
+            celdaDia.appendChild(badge);
         });
+
+        // Al hacer clic, abre la ventana flotante de este día
+        celdaDia.addEventListener('click', () => abrirModal(fechaStr, eventosDelDia));
 
         diasGrid.appendChild(celdaDia);
     }
 }
 
-// Botones para avanzar o retroceder de mes
+// Navegación de meses
 document.getElementById('btn-prev-mes')?.addEventListener('click', () => {
     fechaActual.setMonth(fechaActual.getMonth() - 1);
     renderizarCalendario();
@@ -210,3 +230,86 @@ document.getElementById('btn-next-mes')?.addEventListener('click', () => {
     fechaActual.setMonth(fechaActual.getMonth() + 1);
     renderizarCalendario();
 });
+
+// =============================================================
+// MODAL DE EVENTOS
+// =============================================================
+const modal = document.getElementById('modal-evento');
+const modalFechaTitulo = document.getElementById('modal-fecha-titulo');
+const listaEventosDia = document.getElementById('lista-eventos-dia');
+const eventoFechaInput = document.getElementById('evento-fecha-input');
+const eventoTituloInput = document.getElementById('evento-titulo-input');
+const formEvento = document.getElementById('form-evento');
+
+function abrirModal(fechaStr, eventos) {
+    modalFechaTitulo.innerText = `Eventos: ${fechaStr}`;
+    eventoFechaInput.value = fechaStr;
+    eventoTituloInput.value = '';
+    
+    listaEventosDia.innerHTML = '';
+    if (eventos.length === 0) {
+        listaEventosDia.innerHTML = '<p style="color:#64748b; font-size:0.85rem;">No hay eventos para este día.</p>';
+    } else {
+        eventos.forEach(ev => {
+            const item = document.createElement('div');
+            item.classList.add('event-item');
+            item.innerHTML = `
+                <span>📌 ${escaparHTML(ev.titulo)}</span>
+                <button class="btn-delete" onclick="eliminarEvento(${ev.id})">✕</button>
+            `;
+            listaEventosDia.appendChild(item);
+        });
+    }
+
+    modal.classList.add('active');
+}
+
+function cerrarModal() {
+    modal.classList.remove('active');
+}
+
+// Guardar nuevo evento
+formEvento?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nuevoEvento = {
+        titulo: eventoTituloInput.value,
+        fecha_evento: eventoFechaInput.value
+    };
+
+    try {
+        const res = await fetch(API_EVENTOS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoEvento)
+        });
+
+        if (res.ok) {
+            cerrarModal();
+            cargarEventos(); // Recarga y actualiza el calendario
+        }
+    } catch (error) {
+        console.error('Error al guardar evento:', error);
+    }
+});
+
+// Eliminar evento
+async function eliminarEvento(id) {
+    try {
+        const res = await fetch(`${API_EVENTOS_URL}/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            cerrarModal();
+            cargarEventos();
+        }
+    } catch (error) {
+        console.error('Error al eliminar evento:', error);
+    }
+}
+
+// Asegurarse de que al cambiar a la pestaña de calendario cargue los eventos
+const funcionOriginalCambiarPestana = cambiarPestana;
+cambiarPestana = function(modulo) {
+    funcionOriginalCambiarPestana(modulo);
+    if (modulo === 'calendario') {
+        cargarEventos();
+    }
+};

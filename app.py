@@ -105,3 +105,59 @@ def eliminar_nota(id):
     
 if __name__== '__main__':
     app.run(debug=True, port=5000)
+    
+# -------------------------------------------------------------
+# ENDPOINT 4: Obtener todos los eventos (GET)
+# -------------------------------------------------------------
+@app.route('/api/eventos', methods=['GET'])
+def obtener_eventos():
+    try:
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        # Traemos la fecha formateada en YYYY-MM-DD
+        cursor.execute("SELECT id, titulo, descripcion, DATE_FORMAT(fecha_evento, '%Y-%m-%d') as fecha_evento, color FROM eventos ORDER BY fecha_evento ASC")
+        eventos = cursor.fetchall()
+        conexion.close()
+        return jsonify(eventos), 200
+    except Exception as e:
+        return jsonify({"error": f"Error al obtener eventos: {str(e)}"}), 500
+
+# -------------------------------------------------------------
+# ENDPOINT 5: Crear un evento (POST)
+# -------------------------------------------------------------
+@app.route('/api/eventos', methods=['POST'])
+def crear_evento():
+    try:
+        datos = request.get_json()
+        titulo = datos.get('titulo')
+        fecha_evento = datos.get('fecha_evento')
+
+        if not titulo or not fecha_evento:
+            return jsonify({"error": "Título y fecha son obligatorios"}), 400
+
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        sql = "INSERT INTO eventos (titulo, fecha_evento) VALUES (%s, %s)"
+        cursor.execute(sql, (titulo, fecha_evento))
+        conexion.commit()
+        nuevo_id = cursor.lastrowid
+        conexion.close()
+
+        return jsonify({"mensaje": "Evento creado con éxito", "id": nuevo_id}), 201
+    except Exception as e:
+        return jsonify({"error": f"Error al crear evento: {str(e)}"}), 500
+
+# -------------------------------------------------------------
+# ENDPOINT 6: Eliminar un evento (DELETE)
+# -------------------------------------------------------------
+@app.route('/api/eventos/<int:id>', methods=['DELETE'])
+def eliminar_evento(id):
+    try:
+        conexion = get_db_connection()
+        cursor = conexion.cursor()
+        cursor.execute("DELETE FROM eventos WHERE id = %s", (id,))
+        conexion.commit()
+        conexion.close()
+        return jsonify({"mensaje": f"Evento {id} eliminado con éxito"}), 200
+    except Exception as e:
+        return jsonify({"error": f"Error al eliminar evento: {str(e)}"}), 500

@@ -58,10 +58,9 @@
                 <!-- Cabecera del calendario (Mes, Año, y Botones)-->
 
                 <div class="calendar-header">
-                    <button class="calendar-header">
-                        <button id="btn-prev-mes" class="btn-icon">◀</button>
-                        <h2 id="mes-ano-texto">Septiembre 2026</h2>
-                        <button id="btn-next-mes" class="btn-icon">◀</button>
+                    <button id="btn-prev-mes" class="btn-icon">◀</button>
+                    <h2 id="mes-ano-texto">Septiembre 2026</h2>
+                    <button id="btn-next-mes" class="btn-icon">▶</button>
                 </div>
 
                 <!-- Dias de la semana-->
@@ -81,6 +80,26 @@
             </section>
         </div>
     </main>
+
+    <!-- ================= VENTANA MODAL PARA EVENTOS ================= -->
+    <div id="modal-evento" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-fecha-titulo">Eventos</h3>
+                <button class="btn-close" onclick="cerrarModal()">✕</button>
+            </div>
+
+            <!-- Lista de eventos creados en este día -->
+            <div id="lista-eventos-dia" class="events-list"></div>
+
+            <!-- Formulario para agregar un evento -->
+            <form id="form-evento" class="form-modal">
+                <input type="hidden" id="evento-fecha-input">
+                <input type="text" id="evento-titulo-input" placeholder="Nombre de la entrega o examen..." required>
+                <button type="submit" class="btn btn-primary">Guardar Evento</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Enlazamos el JavaScript usando url_for de Flask -->
     <script src="{{ url_for('static', filename='js/main.js') }}">

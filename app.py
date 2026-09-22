@@ -102,9 +102,7 @@ def eliminar_nota(id):
     
     except Exception as e:
         return jsonify({"error": f"Error al eliminar nota: {str(e)}"}), 500
-    
-if __name__== '__main__':
-    app.run(debug=True, port=5000)
+
     
 # -------------------------------------------------------------
 # ENDPOINT 4: Obtener todos los eventos (GET)
@@ -161,3 +159,6 @@ def eliminar_evento(id):
         return jsonify({"mensaje": f"Evento {id} eliminado con éxito"}), 200
     except Exception as e:
         return jsonify({"error": f"Error al eliminar evento: {str(e)}"}), 500
+    
+if __name__== '__main__':
+    app.run(debug=True, port=5000)

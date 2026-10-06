@@ -169,11 +169,17 @@ header p {
     }
 }
 
-/* Grid de notas - single column, minimal */
+/* Grid de notas - 2 columns grid */
 .notes-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .notes-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Tarjetas de Notas - Minimal style */
@@ -644,12 +650,34 @@ header p {
     background: #dc2626;
 }
 
+.btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+}
+
+.btn-primary:disabled {
+    background: var(--text-muted);
+    cursor: not-allowed;
+}
+
 /* Focus visible para accesibilidad */
 .btn:focus-visible,
 .tab-btn:focus-visible,
 .btn-icon:focus-visible,
 .btn-icon-action:focus-visible,
-.day-cell:focus-visible {
+.day-cell:focus-visible,
+.btn-primary:focus-visible {
     outline: 2px solid var(--primary-color);
     outline-offset: 2px;
 }

@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarNotas();
     initInlineNoteCapture();
     initGlobalShortcuts();
+    initCalendarTabListener();
 })
 
 async function cargarNotas() {
@@ -68,6 +69,21 @@ function initGlobalShortcuts() {
             }
         });
     });
+}
+
+// ----------------------------------------------------------
+// Calendar Tab Listener - asegura que el calendario cargue al cambiar pestaña
+// ----------------------------------------------------------
+function initCalendarTabListener() {
+    const tabCalendario = document.getElementById('tab-calendario');
+    if (tabCalendario) {
+        tabCalendario.addEventListener('click', () => {
+            // Pequeño delay para asegurar que la vista esté activa
+            setTimeout(() => {
+                cargarEventos();
+            }, 50);
+        });
+    }
 }
 
 // ----------------------------------------------------------
@@ -513,11 +529,14 @@ const mesesNombres = [
 async function cargarEventos() {
     try {
         const respuesta = await fetch(API_EVENTOS_URL);
+        if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
         listaEventos = await respuesta.json();
-        renderizarCalendario();
     } catch (error) {
         console.error('Error al cargar eventos:', error);
+        listaEventos = []; // Asegurar array vacío para que el calendario se renderice
+        showToast('Error al cargar eventos');
     }
+    renderizarCalendario();
 }
 
 function renderizarCalendario() {
@@ -678,12 +697,3 @@ async function eliminarEventoConfirmado(id) {
         cerrarConfirmModal();
     }
 }
-
-// Asegurarse de que al cambiar a la pestaña de calendario cargue los eventos
-const funcionOriginalCambiarPestana = cambiarPestana;
-cambiarPestana = function(modulo) {
-    funcionOriginalCambiarPestana(modulo);
-    if (modulo === 'calendario') {
-        cargarEventos();
-    }
-};

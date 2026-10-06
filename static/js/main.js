@@ -38,6 +38,7 @@ async function cargarNotas() {
             return;
         }
         
+        // API returns newest first (DESC), so we render in order
         notas.forEach(nota => {
             renderNoteCard(nota);
         });
@@ -76,7 +77,7 @@ function initInlineNoteCapture() {
     // Guardar nota - Click
     btnGuardarNota.addEventListener('click', guardarNotaInline);
 
-    // Guardar nota - Ctrl+Enter desde cualquier campo
+    // Guardar nota - Ctrl+Enter desde cualquier campo del formulario inline
     [inlineTitulo, inlineContenido].forEach(el => {
         el.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -94,25 +95,42 @@ function initInlineNoteCapture() {
         }
     });
 
-    // Enter en contenido -> foco en primer checklist o guardar si no hay checklist
+    // Enter en contenido -> mostrar checklist y foco en primer input, o guardar si ya hay checklist
     inlineContenido.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+            e.preventDefault();
+            
+            // Si no hay checklist visible, mostrarlo y crear primer item
             if (inlineChecklistContainer.classList.contains('hidden')) {
-                e.preventDefault();
-                const firstChecklistInput = inlineChecklistContainer.querySelector('.checklist-item-input[type="text"]');
-                if (firstChecklistInput) {
-                    firstChecklistInput.focus();
-                } else {
-                    guardarNotaInline();
+                inlineChecklistContainer.classList.remove('hidden');
+                const firstRow = addChecklistInputRow(inlineChecklistContainer);
+                firstRow.querySelector('input[type="text"]').focus();
+                btnAddChecklist.style.display = 'none';
+            } else {
+                // Ya hay checklist visible, foco al primer input de texto vacío o crear nuevo
+                const textInputs = inlineChecklistContainer.querySelectorAll('input[type="text"].checklist-item-input');
+                let focused = false;
+                for (const input of textInputs) {
+                    if (!input.value.trim()) {
+                        input.focus();
+                        focused = true;
+                        break;
+                    }
+                }
+                if (!focused) {
+                    // Todos tienen texto, crear nuevo
+                    const newRow = addChecklistInputRow(inlineChecklistContainer);
+                    newRow.querySelector('input[type="text"]').focus();
                 }
             }
         }
     });
 
-    // Agregar campo de checklist en la nota inline
+    // Agregar campo de checklist en la nota inline (botón ☑)
     btnAddChecklist.addEventListener('click', () => {
         inlineChecklistContainer.classList.remove('hidden');
-        addChecklistInputRow(inlineChecklistContainer);
+        const firstRow = addChecklistInputRow(inlineChecklistContainer);
+        firstRow.querySelector('input[type="text"]').focus();
         btnAddChecklist.style.display = 'none';
     });
 
@@ -128,6 +146,10 @@ async function guardarNotaInline() {
         shakeElement(document.getElementById('nueva-nota-inline'));
         return;
     }
+
+    // Deshabilitar botón mientras guarda
+    btnGuardarNota.disabled = true;
+    btnGuardarNota.textContent = 'Guardando...';
 
     try {
         const respuesta = await fetch(API_URL, {
@@ -156,6 +178,9 @@ async function guardarNotaInline() {
     } catch (error) {
         console.error('Error al guardar nota:', error);
         showToast('Error de conexión');
+    } finally {
+        btnGuardarNota.disabled = false;
+        btnGuardarNota.textContent = 'Guardar (Ctrl+Enter)';
     }
 }
 
@@ -165,6 +190,8 @@ function resetInlineForm() {
     inlineChecklistContainer.innerHTML = '';
     inlineChecklistContainer.classList.add('hidden');
     btnAddChecklist.style.display = 'flex';
+    btnGuardarNota.disabled = false;
+    btnGuardarNota.textContent = 'Guardar (Ctrl+Enter)';
     inlineTitulo.focus();
 }
 
@@ -203,30 +230,17 @@ function addChecklistInputRow(container, texto = '', completado = false, itemId 
             e.preventDefault();
             const currentText = input.value.trim();
             if (currentText) {
-                // Si es nota guardada, guardar en servidor
-                if (isSavedNote && itemId) {
-                    // Update existing
-                } else if (isSavedNote && !itemId) {
-                    // Will be handled by the parent note's save
-                }
                 // Crear siguiente input
                 const nextRow = addChecklistInputRow(container);
                 nextRow.querySelector('input[type="text"]').focus();
             }
         }
+        // Ctrl+Enter para guardar la nota desde checklist
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            guardarNotaInline();
+        }
     });
-    
-    // Para notas guardadas: Enter guarda el item en el servidor
-    if (isSavedNote) {
-        input.addEventListener('blur', async () => {
-            const texto = input.value.trim();
-            if (texto && itemId) {
-                // Update existing item - would need PATCH endpoint
-            } else if (texto && !itemId) {
-                // This is handled when saving the parent note
-            }
-        });
-    }
     
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';
@@ -279,7 +293,7 @@ function renderNoteCard(nota) {
         `;
     }
 
-    // Add "add item" row at the end of checklist for saved notes
+    // Add "add item" row at the end of checklist for saved notes (always show for notes with or without checklist)
     const addItemRow = `
         <div class="checklist-add-row" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
             <span style="width: 1.1rem;"></span>
@@ -294,7 +308,7 @@ function renderNoteCard(nota) {
             <h3>${escaparHTML(nota.titulo)}</h3>
             <p>${escaparHTML(nota.contenido || '')}</p>
             ${checklistHTML}
-            ${nota.checklist && nota.checklist.length > 0 ? addItemRow : ''}
+            ${addItemRow}
         </div>
         <div class="note-footer">
             <span class="note-date">${fecha}</span>
@@ -302,6 +316,7 @@ function renderNoteCard(nota) {
         </div>
     `;
 
+    // Insert at the top (newest first) - insertBefore with firstChild puts it at position 0
     contenedorNotas.insertBefore(notaElemento, contenedorNotas.firstChild);
 
     // Setup enter key for new checklist item in saved note
@@ -554,7 +569,7 @@ function renderizarCalendario() {
     const ano = fechaActual.getFullYear();
     const mes = fechaActual.getMonth();
 
-    mesTexto.innerText = `${mesesNombres[mes]} ${ano}`;
+    mesTexto.innerText = `${mesNombres[mes]} ${ano}`;
     diasGrid.innerHTML = '';
 
     const primerDiaIndex = new Date(ano, mes, 1).getDay();

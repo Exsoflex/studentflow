@@ -293,22 +293,11 @@ function renderNoteCard(nota) {
         `;
     }
 
-    // Add "add item" row at the end of checklist for saved notes (always show for notes with or without checklist)
-    const addItemRow = `
-        <div class="checklist-add-row" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color);">
-            <span style="width: 1.1rem;"></span>
-            <input type="text" class="checklist-new-item" placeholder="Añadir elemento... (Enter para guardar)" 
-                   style="flex: 1; padding: 0.4rem 0.5rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; outline: none; background: var(--card-bg);"
-                   data-nota-id="${nota.id}">
-        </div>
-    `;
-
     notaElemento.innerHTML = `
         <div>
             <h3>${escaparHTML(nota.titulo)}</h3>
             <p>${escaparHTML(nota.contenido || '')}</p>
             ${checklistHTML}
-            ${addItemRow}
         </div>
         <div class="note-footer">
             <span class="note-date">${fecha}</span>
@@ -316,37 +305,8 @@ function renderNoteCard(nota) {
         </div>
     `;
 
-    // Insert at the top (newest first) - insertBefore with firstChild puts it at position 0
-    contenedorNotas.insertBefore(notaElemento, contenedorNotas.firstChild);
-
-    // Setup enter key for new checklist item in saved note
-    const newItemInput = notaElemento.querySelector('.checklist-new-item');
-    if (newItemInput) {
-        newItemInput.addEventListener('keydown', async (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                const texto = newItemInput.value.trim();
-                if (texto) {
-                    const notaId = parseInt(newItemInput.dataset.notaId);
-                    const result = await agregarChecklistItemAPI(notaId, texto);
-                    if (result) {
-                        newItemInput.value = '';
-                        // Add to UI immediately
-                        const container = notaElemento.querySelector('.checklist-container');
-                        const newItem = document.createElement('div');
-                        newItem.className = 'checklist-item';
-                        newItem.dataset.itemId = result.id;
-                        newItem.innerHTML = `
-                            <input type="checkbox" onchange="toggleChecklistItem(${result.id}, this)">
-                            <span class="checklist-text">${escaparHTML(result.texto)}</span>
-                            <button class="btn-delete-checklist" onclick="confirmarEliminarChecklist(${result.id}, this)">✕</button>
-                        `;
-                        container.insertBefore(newItem, newItemInput.parentElement);
-                    }
-                }
-            }
-        });
-    }
+    // API returns newest first (DESC), so appendChild maintains correct order (newest at top)
+    contenedorNotas.appendChild(notaElemento);
 }
 
 // ----------------------------------------------------------

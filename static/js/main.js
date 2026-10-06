@@ -510,7 +510,7 @@ function cambiarPestana(modulo) {
         vistaCalendario.classList.add('active');
         tabNotas.classList.remove('active');
         tabCalendario.classList.add('active');
-        renderizarCalendario();
+        cargarEventos(); // Cargar eventos y renderizar calendario
     }
 }
 

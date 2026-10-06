@@ -27,29 +27,34 @@
     <main class="main-container">
 <!-- ================= VISTA 1: NOTAS ================= -->
         <div id="vista-notas" class="vista-modulo active">
-            <!-- Formulario para crear notas -->
-            <section class="card from-cards">
-                <h2> ✨ Nueva Nota </h2>
-                <form id="form-nota">
-                    <div class="input-group">
-                        <label for="titulo"> Titulo</label>
-                        <input type="text" id="titulo" placeholder="Ej: Tarea de Programacion" required>
+            <div class="notes-layout">
+                <!-- Columna Izquierda: Captura Inline -->
+                <aside class="notes-sidebar">
+                    <section class="notes-header">
+                        <h2>✨ Nueva nota</h2>
+                    </section>
+                    <article id="nueva-nota-inline" class="note-card new-note-card" role="region" aria-label="Crear nueva nota">
+                        <div class="new-note-input">
+                            <input type="text" id="inline-titulo" placeholder="Título" aria-label="Título de la nota">
+                            <textarea id="inline-contenido" placeholder="Toma una nota..." aria-label="Contenido de la nota" rows="2"></textarea>
                         </div>
-                    <div class="input-group">
-                        <label for="contenido">Contenido / Apuntes</label>
-                        <textarea id="contenido" rows="3" placeholder="Escribe los detalles aqui..."> </textarea>
+                        <div class="new-note-actions">
+                            <button type="button" id="btn-add-checklist" class="btn-icon-action" aria-label="Agregar checklist" title="Agregar checklist (/)">☑</button>
+                            <button type="button" id="btn-guardar-nota" class="btn btn-primary">Guardar (Ctrl+Enter)</button>
+                        </div>
+                        <div id="inline-checklist-container" class="checklist-container hidden"></div>
+                    </article>
+                </aside>
+                <!-- Columna Derecha: Lista de notas -->
+                <section class="notes-main">
+                    <div class="notes-header">
+                        <h2>📝 Mis notas</h2>
                     </div>
-                    <button type="submit" class="btn btn-primary"> Guardar Nota</button>
-                </form>
-            </section>
-
-            <!-- Panel Derecho: Lista de notas guardadas -->
-            <section class="notes-section">
-                <h2>📝 Mis notas </h2>
-                <div id="contenedor-notas" class="notes-grid">
-                    <!-- Aqui JavaScript inyecta las tarjetas de las notas -->
-                </div>
-            </section>
+                    <div id="contenedor-notas" class="notes-grid">
+                        <!-- Aquí JavaScript inyecta las tarjetas de las notas -->
+                    </div>
+                </section>
+            </div>
         </div>
 
  <!-- ================= VISTA 2: CALENDARIO ================= -->
@@ -81,7 +86,7 @@
         </div>
     </main>
 
-    <!-- ================= VENTANA MODAL PARA EVENTOS ================= -->
+<!-- ================= VENTANA MODAL PARA EVENTOS ================= -->
     <div id="modal-evento" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -101,8 +106,23 @@
         </div>
     </div>
 
+    <!-- ================= MODAL DE CONFIRMACIÓN PERSONALIZADO ================= -->
+    <div id="modal-confirmar" class="modal-overlay">
+        <div class="modal-content modal-confirm">
+            <div class="modal-header">
+                <h3 id="confirm-titulo">Confirmar</h3>
+                <button class="btn-close" onclick="cerrarConfirmModal()">✕</button>
+            </div>
+            <p id="confirm-mensaje"></p>
+            <div class="confirm-actions">
+                <button class="btn btn-secondary" onclick="cerrarConfirmModal()">Cancelar</button>
+                <button class="btn btn-danger" id="confirm-accion">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Enlazamos el JavaScript usando url_for de Flask -->
     <script src="{{ url_for('static', filename='js/main.js') }}">
-</script>
+    </script>
 </body>
 </html>

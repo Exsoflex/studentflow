@@ -167,7 +167,9 @@ def eliminar_evento(id):
 # -------------------------------------------------------------
 # ENDPOINTS CHECKLIST
 # -------------------------------------------------------------
+# -------------------------------------------------------------
 # POST /api/notas/<id>/items - Agregar item a checklist de una nota
+# -------------------------------------------------------------
 @app.route('/api/notas/<int:nota_id>/items', methods=['POST'])
 def agregar_checklist_item(nota_id):
     try:
@@ -201,8 +203,9 @@ def agregar_checklist_item(nota_id):
     except Exception as e:
         return jsonify({"error": f"Error al agregar item: {str(e)}"}), 500
 
-
+# -------------------------------------------------------------
 # PUT /api/items/<id>/toggle - Cambiar estado completado
+# -------------------------------------------------------------
 @app.route('/api/items/<int:id>/toggle', methods=['PUT'])
 def toggle_checklist_item(id):
     try:
@@ -226,8 +229,9 @@ def toggle_checklist_item(id):
     except Exception as e:
         return jsonify({"error": f"Error al actualizar item: {str(e)}"}), 500
 
-
+# -------------------------------------------------------------
 # DELETE /api/items/<id> - Eliminar item
+# -------------------------------------------------------------
 @app.route('/api/items/<int:id>', methods=['DELETE'])
 def eliminar_checklist_item(id):
     try:
@@ -245,8 +249,9 @@ def eliminar_checklist_item(id):
     except Exception as e:
         return jsonify({"error": f"Error al eliminar item: {str(e)}"}), 500
 
-
+# -------------------------------------------------------------
 # GET /api/notas/<id>/items - Obtener items de checklist de una nota
+# -------------------------------------------------------------
 @app.route('/api/notas/<int:nota_id>/items', methods=['GET'])
 def obtener_checklist_items(nota_id):
     try:

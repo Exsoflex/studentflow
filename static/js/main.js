@@ -548,7 +548,9 @@ function renderizarCalendario() {
     const ano = fechaActual.getFullYear();
     const mes = fechaActual.getMonth();
 
-    mesTexto.innerText = `${mesNombres[mes]} ${ano}`;
+    // Local reference to ensure scope
+    const meses = mesesNombres;
+    mesTexto.innerText = `${meses[mes]} ${ano}`;
     diasGrid.innerHTML = '';
 
     const primerDiaIndex = new Date(ano, mes, 1).getDay();
